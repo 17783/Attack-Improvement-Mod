@@ -194,11 +194,11 @@ namespace Sheepy.BattleTechMod.AttackImprovementMod {
          damages.Clear();
       }                 catch ( Exception ex ) { Error( ex ); } }
 
-      public static void CheckForCrit ( AIMCritInfo info, int hitLocation, bool logCrit ) { try {
-         if ( info?.weapon == null ) return;
+      public static bool CheckForCrit ( AIMCritInfo info, int hitLocation, bool logCrit ) { try {
+         if ( info?.weapon == null ) return true;
          info.SetHitLocation( hitLocation );
          AbstractActor target = info.target;
-         if ( SkipCritingDeadMech && IsBeatingDeadMech( target ) ) return;
+         if ( SkipCritingDeadMech && IsBeatingDeadMech( target ) ) return false;
          float chance = info.GetCritChance();
          for ( int i = 1 ; chance > 0 ; i++ ) {
             float critRoll = Combat.NetworkRandom.Float(); // If use original code AttackDirector.GetRandomFromCache( info.hitInfo, 2 ), may run out of rolls
@@ -218,7 +218,11 @@ namespace Sheepy.BattleTechMod.AttackImprovementMod {
             chance -= critRoll;
          }
          PostCheckForCrit( info, logCrit );
-      }                 catch ( Exception ex ) { Error( ex ); } }
+      }                 catch ( Exception ex ) { Error( ex ); }
+
+         return false;
+      }
+      
 
       private static MechComponent FindAndCritComponent ( AIMCritInfo critInfo, float random ) {
          MechComponent component = critInfo.FindComponentFromRoll( random );
